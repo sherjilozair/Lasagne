@@ -66,7 +66,7 @@ class DenseLayer(Layer):
 
         self.num_units = num_units
 
-        num_inputs = int(np.prod(self.input_shape[1:]))
+        num_inputs = int(self.input_shape[-1])
 
         self.W = self.add_param(W, (num_inputs, num_units), name="W")
         if b is None:
@@ -76,14 +76,9 @@ class DenseLayer(Layer):
                                     regularizable=False)
 
     def get_output_shape_for(self, input_shape):
-        return (input_shape[0], self.num_units)
+        return input_shape[:-1] + (self.num_units,)
 
     def get_output_for(self, input, **kwargs):
-        if input.ndim > 2:
-            # if the input has more than two dimensions, flatten it into a
-            # batch of feature vectors.
-            input = input.flatten(2)
-
         activation = T.dot(input, self.W)
         if self.b is not None:
             activation = activation + self.b.dimshuffle('x', 0)
